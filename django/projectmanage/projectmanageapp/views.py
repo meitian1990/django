@@ -6,16 +6,22 @@ from bson import json_util as json
 import pymongo
 from projectmanageapp.models import project
 from django.template import Template, Context, RequestContext
+from mongoengine import *
 
-# def upload(request):
-#     if request.method == "POST":
-#         file = request.FILES["proupload"]
 
 
 # Create your views here.
 # def current_datetime(request):
 #     current_date = datetime.datetime.now()
 #     return render_to_response('current_datetime.html', locals())
+def uploadfile(request):
+    # if request.method == "POST":
+    #     form = UploadFile(request.POST,request.FILES)
+    #     if form.is_valid():
+    #         # handle_uploaded_file(request.FILES['file'])
+    #         return
+    return
+
 def delete(request):
     if request.method=="POST":
         id = request.POST["del"]
@@ -29,8 +35,6 @@ def edit(request,param):
     # post = project.objects(pk=param)[0]
     #小稳子建议用get
     post = project.objects.get(pk=param)
-    if post.file:
-        pload = post.file.read()
     for i in project.objects(pk=param):
         print(i)
     if request.method == 'POST':
@@ -79,9 +83,9 @@ def index(request,content=""):
     #暂时隐藏的保存操作
 
     return render_to_response('index.html', locals(),context_instance=RequestContext(request))
-#上传文件方法
+
 def uploaded_file(f,filename):
-    address ='C:/Users/msun.sun/Desktop/'+filename
+    address ='C:/Users/min.sun/Desktop/'+filename
     destination = open(address, 'wb+')
     for chunk in f.chunks():
         destination.write(chunk)
@@ -96,12 +100,13 @@ def newproject(request):
         testmember = request.POST['testmember']
         uimember = request.POST['uimember']
         post = project(name=name, description=description,pmember=pmember,devmember=devmember,testmember=testmember,uimember=uimember,status="测试中")
-        # # file = request.FILES.getlist()
-        # file = request.FILES['proupload']
-        # post.file.put(file,filename=file.name)
-        filename =request.FILES['proupload'].name
-        uploaded_file(request.FILES['proupload'],filename)
-        post.proadress = filename
+        if request.FILES:
+            filename =request.FILES['proupload'].name
+            uploaded_file(request.FILES['proupload'],filename)
+            post.proadress = filename
+        # profile = request.FILES["proupload"]
+        # post.file.put(profile)
+        # post.file.put(open(r'C:\\Users\min.sun\Desktop\阿布.jpg','rb'))
         post.last_update = datetime.now()
         post.save()
         return HttpResponseRedirect('/index/')
